@@ -11,6 +11,10 @@ export const APP_NAME = "CHESSOUND";
 export const SCHEMA_VERSION = 1;
 export const START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
+// A final hard safety net around every generated note.
+export const MIDI_SAFE_MIN = 24;
+export const MIDI_SAFE_MAX = 108;
+
 export const STORAGE_KEYS = {
   preferences: "chessound.preferences.v1",
   compositions: "chessound.compositions.v1",
