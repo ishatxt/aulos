@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="CHESSOUND turns every legal chess move into deterministic piano music. Play, replay, customise and export chess compositions entirely in your browser."
+    />
+    <meta name="theme-color" content="#0a0908" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0908'/%3E%3Cpath d='M20 47V25M30 47V17M40 47V31M50 47V21' stroke='%23d6bd8a' stroke-width='3.5' stroke-linecap='round'/%3E%3Ccircle cx='20' cy='20' r='3.5' fill='%23b6a0ef'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/cm-assets/chessboard.css" />
+    <link rel="stylesheet" href="/cm-assets/extensions/markers/markers.css" />
+    <link rel="stylesheet" href="/cm-assets/extensions/promotion-dialog/promotion-dialog.css" />
+    <title>CHESSOUND — The Sound of Chess</title>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true">
+      <symbol id="icon-wave" viewBox="0 0 24 24">
+        <path d="M3 12h2l2-6 3 12 3-9 2 5 2-3h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-upload" viewBox="0 0 24 24">
+        <path d="M12 16V4m0 0L7 9m5-5 5 5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-library" viewBox="0 0 24 24">
+        <path d="M5 4h4v16H5zM11 4h3v16h-3zM16.5 4.5l3.5-.9 3.3 15.6-3.5.9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-settings" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <path d="M19 13.6v-3.2l-2-.7a7 7 0 0 0-.7-1.7l.9-1.9-2.3-2.3-1.9.9a7 7 0 0 0-1.7-.7L10.6 2H7.4l-.7 2a7 7 0 0 0-1.7.7l-1.9-.9L.8 6.1l.9 1.9a7 7 0 0 0-.7 1.7l-2 .7v3.2l2 .7a7 7 0 0 0 .7 1.7l-.9 1.9 2.3 2.3 1.9-.9a7 7 0 0 0 1.7.7l.7 2h3.2l.7-2a7 7 0 0 0 1.7-.7l1.9.9 2.3-2.3-.9-1.9a7 7 0 0 0 .7-1.7z" transform="translate(3.2 1)" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-undo" viewBox="0 0 24 24">
+        <path d="M9 7 4 12l5 5M4 12h9a6 6 0 0 1 6 6v1" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-flip" viewBox="0 0 24 24">
+        <path d="M7 4v13M4 7l3-3 3 3M17 20V7m-3 3 3-3 3 3M9 20h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-rewind" viewBox="0 0 24 24">
+        <path d="M6 5v14M18 6 9 12l9 6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-prev" viewBox="0 0 24 24">
+        <path d="m15 6-7 6 7 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-next" viewBox="0 0 24 24">
+        <path d="m9 6 7 6-7 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-forward" viewBox="0 0 24 24">
+        <path d="M18 5v14M6 6l9 6-9 6z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <path d="m9 6 10 6-10 6z" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24">
+        <path d="M8 6h3v12H8zM14 6h3v12h-3z" fill="currentColor" />
+      </symbol>
+      <symbol id="icon-stop" viewBox="0 0 24 24">
+        <rect x="7" y="7" width="10" height="10" rx="1.2" fill="currentColor" />
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24">
+        <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-share" viewBox="0 0 24 24">
+        <circle cx="18" cy="5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <circle cx="6" cy="12" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <circle cx="18" cy="19" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4" fill="none" stroke="currentColor" stroke-width="1.6" />
+      </symbol>
+      <symbol id="icon-save" viewBox="0 0 24 24">
+        <path d="M5 4h12l2 2v14H5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M8 4v5h7V4M8 20v-6h8v6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24">
+        <path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-spark" viewBox="0 0 24 24">
+        <path d="M12 3v4m0 10v4M3 12h4m10 0h4M5.6 5.6l2.8 2.8m7.2 7.2 2.8 2.8m0-12.8-2.8 2.8m-7.2 7.2-2.8 2.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-note" viewBox="0 0 24 24">
+        <path d="M10 18V6l8-2v11M10 9l8-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="7.5" cy="18" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+        <circle cx="15.5" cy="15" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-volume" viewBox="0 0 24 24">
+        <path d="M5 10v4h3l4 3V7l-4 3zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-warning" viewBox="0 0 24 24">
+        <path d="m12 4 9 16H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M12 9v5m0 3v.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-players" viewBox="0 0 24 24">
+        <circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.5" />
+        <path d="M3.5 20c.4-4 2.3-6 5.5-6s5.1 2 5.5 6M16 5.3a3.2 3.2 0 0 1 0 6.1M16.5 14.3c2.4.5 3.7 2.4 4 5.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24">
+        <path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+    </svg>
+
+    <a class="skip-link" href="#board-panel">Skip to the chessboard</a>
+
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="CHESSOUND home">
+        <span class="brand-mark" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span class="brand-copy">
+          <strong>CHESSOUND</strong>
+          <small>The sound of chess</small>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <button class="audio-control" id="audio-button" type="button" aria-pressed="false">
+          <span class="audio-control-icon" aria-hidden="true">
+            <svg class="icon"><use href="#icon-wave"></use></svg>
+          </span>
+          <span class="audio-control-copy">
+            <span id="audio-label">Enable sound</span>
+            <small id="audio-sublabel">Synthesized locally</small>
+          </span>
+          <span class="audio-led" id="audio-led" aria-hidden="true"></span>
+        </button>
+        <button class="topbar-button" id="import-button" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-upload"></use></svg>
+          <span>Import PGN</span>
+        </button>
+        <button class="topbar-button" id="library-button" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-library"></use></svg>
+          <span>Library</span>
+          <span class="count-badge" id="library-count">0</span>
+        </button>
+        <button class="icon-button topbar-icon-button" id="settings-button" type="button" aria-label="Open settings" data-tooltip="Settings">
+          <svg class="icon" aria-hidden="true"><use href="#icon-settings"></use></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="session-bar" aria-labelledby="composition-title">
+        <div class="session-copy">
+          <div class="eyebrow-row">
+            <span class="eyebrow"><span class="status-led" id="status-led"></span> Live composition</span>
+            <span class="session-divider" aria-hidden="true"></span>
+            <span class="eyebrow muted" id="session-source">Local session</span>
+          </div>
+          <h1 id="composition-title">White vs Black</h1>
+          <p class="session-meta">
+            <span id="composition-subtitle">The opening position</span>
+            <span aria-hidden="true">·</span>
+            <span id="composition-duration">0 moves · 0:00</span>
+          </p>
+        </div>
+        <div class="session-actions">
+          <div class="mode-readout">
+            <span>Mode</span>
+            <strong id="current-mode-label">Classical</strong>
+          </div>
+          <button class="quiet-button" id="mapping-button" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#icon-spark"></use></svg>
+            Mapping guide
+          </button>
+        </div>
+      </section>
+
+      <div class="studio-grid">
+        <section class="board-column" aria-label="Chess and score">
+          <section class="panel board-panel" id="board-panel">
+            <div class="panel-heading board-heading">
+              <div>
+                <span class="eyebrow">The board</span>
+                <div class="status-line">
+                  <span class="turn-pip" id="turn-pip" aria-hidden="true"></span>
+                  <strong id="game-status">White to move</strong>
+                  <span class="status-detail" id="game-status-detail">Opening position</span>
+                </div>
+              </div>
+              <div class="board-status-chips">
+                <span class="mini-chip" id="review-chip" hidden>Reviewing</span>
+                <span class="mini-chip" id="playback-chip" hidden>Replay in sync</span>
+              </div>
+            </div>
+
+            <div class="duelist-row">
+              <div class="duelist">
+                <span class="mini-piece white-piece" aria-hidden="true">♔</span>
+                <div>
+                  <strong id="white-player-name">White</strong>
+                  <span id="white-voice-name">Ivory piano</span>
+                </div>
+              </div>
+              <span class="duelist-versus" aria-hidden="true">vs</span>
+              <div class="duelist black">
+                <div>
+                  <strong id="black-player-name">Black</strong>
+                  <span id="black-voice-name">Onyx piano</span>
+                </div>
+                <span class="mini-piece black-piece" aria-hidden="true">♚</span>
+              </div>
+            </div>
+
+            <div class="board-stage">
+              <div id="board" class="board" aria-label="Interactive chessboard" aria-describedby="board-help"></div>
+              <div class="board-effect" id="board-effect" aria-hidden="true">
+                <span class="board-effect-glyph" id="board-effect-glyph">✦</span>
+                <span id="board-effect-label">Capture</span>
+              </div>
+              <p class="visually-hidden" id="board-help">
+                Use the chessboard with drag and drop or click-to-move. A keyboard move field is available below the score.
+              </p>
+            </div>
+
+            <div class="board-toolbar">
+              <div class="toolbar-group">
+                <button class="tool-button primary-soft" id="new-game-button" type="button">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
+                  <span>New game</span>
+                </button>
+                <button class="tool-button" id="undo-button" type="button" data-tooltip="Undo last move">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-undo"></use></svg>
+                  <span>Undo</span>
+                </button>
+                <button class="tool-button" id="flip-button" type="button" data-tooltip="Flip board">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-flip"></use></svg>
+                  <span>Flip</span>
+                </button>
+                <button class="tool-button compact-label" id="reset-position-button" type="button" data-tooltip="Reset to the first position">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+                  <span>Reset</span>
+                </button>
+              </div>
+              <div class="toolbar-group nav-group" aria-label="Move through the game">
+                <button class="icon-button" id="view-start-button" type="button" aria-label="Go to the first position" data-tooltip="First position">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+                </button>
+                <button class="icon-button" id="view-prev-button" type="button" aria-label="Previous chess move" data-tooltip="Previous move">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+                </button>
+                <span class="ply-counter" id="ply-counter">0 / 0</span>
+                <button class="icon-button" id="view-next-button" type="button" aria-label="Next chess move" data-tooltip="Next move">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+                </button>
+                <button class="icon-button" id="view-end-button" type="button" aria-label="Go to the latest position" data-tooltip="Latest position">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-forward"></use></svg>
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel score-panel" aria-labelledby="score-heading">
+            <div class="panel-heading compact">
+              <div>
+                <span class="eyebrow" id="score-heading">Score</span>
+                <span class="heading-meta" id="score-meta">0 moves</span>
+              </div>
+              <button class="quiet-button small" id="return-live-button" type="button" hidden>Return to live</button>
+            </div>
+            <div class="score-table">
+              <div class="score-header" aria-hidden="true">
+                <span>#</span><span>White</span><span>Black</span>
+              </div>
+              <div class="move-list" id="move-list" role="list" aria-label="Move history"></div>
+            </div>
+            <form class="notation-form" id="notation-form">
+              <label for="notation-input">Keyboard move</label>
+              <div class="notation-input-wrap">
+                <input
+                  id="notation-input"
+                  name="notation"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Type e4, Nf3 or e2e4"
+                  aria-describedby="notation-help"
+                />
+                <button type="submit" class="icon-button notation-submit" aria-label="Play typed move" data-tooltip="Play move">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+                </button>
+              </div>
+              <span class="visually-hidden" id="notation-help">Enter a legal SAN move such as Nf3, or coordinate move such as e2e4.</span>
+            </form>
+          </section>
+        </section>
+
+        <aside class="music-column" aria-label="Music studio">
+          <section class="panel sound-panel" aria-labelledby="sound-heading">
+            <div class="panel-heading">
+              <div>
+                <span class="eyebrow" id="sound-heading">Sonic canvas</span>
+                <span class="heading-meta">Live note field</span>
+              </div>
+              <span class="audio-state" id="audio-state"><span></span> Standby</span>
+            </div>
+
+            <div class="mode-deck">
+              <div class="mode-deck-head">
+                <span class="field-label">Sound mode</span>
+                <span class="mode-description" id="mode-description">Piano recital</span>
+              </div>
+              <div class="mode-tabs" id="mode-tabs" role="group" aria-label="Sound mode"></div>
+            </div>
+
+            <div class="now-panel" id="now-panel">
+              <div class="now-main">
+                <span class="now-kicker">Now sounding</span>
+                <div class="now-note" id="now-note">—</div>
+                <div class="now-detail" id="now-detail">Play a move or start the composition</div>
+              </div>
+              <div class="now-piece" aria-hidden="true">
+                <span class="now-piece-glyph" id="now-piece-glyph">♟</span>
+                <span class="now-voice" id="now-voice">Awaiting audio</span>
+              </div>
+            </div>
+
+            <div class="visualizer-shell">
+              <canvas
+                id="visualizer"
+                class="visualizer"
+                role="img"
+                aria-label="Real-time audio spectrum and waveform. It stays still until sound is playing."
+              ></canvas>
+              <div class="visualizer-overlay-note" id="visualizer-overlay">Enable sound to wake the analyser</div>
+              <div class="visualizer-readout">
+                <span id="analyser-readout">FFT standby</span>
+                <span id="timbre-readout">0 voices</span>
+              </div>
+            </div>
+
+            <div class="piano-shell" id="piano-shell">
+              <div class="piano-caption">
+                <span>Piano field</span>
+                <span id="piano-note-readout">C2 — C7</span>
+              </div>
+              <div class="piano" id="piano" role="img" aria-label="Piano keyboard highlighting notes currently sounding"></div>
+            </div>
+
+            <div class="sound-insight">
+              <div class="insight-head">
+                <span class="eyebrow">Current mapping</span>
+                <button class="text-link" id="insight-open-button" type="button">Full guide</button>
+              </div>
+              <p id="insight-message">The board is silent until a move or the composition player begins.</p>
+              <ul class="insight-list" id="insight-list"></ul>
+            </div>
+          </section>
+
+          <section class="panel transport-panel" aria-labelledby="transport-heading">
+            <div class="panel-heading compact">
+              <div>
+                <span class="eyebrow" id="transport-heading">Composition player</span>
+                <span class="heading-meta" id="transport-status">Ready</span>
+              </div>
+              <span class="transport-event-index" id="transport-event-index">Event —</span>
+            </div>
+
+            <div class="transport">
+              <div class="transport-side">
+                <button class="icon-button transport-minor" id="player-start-button" type="button" aria-label="Restart composition" data-tooltip="Restart">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-rewind"></use></svg>
+                </button>
+                <button class="icon-button transport-minor" id="player-prev-button" type="button" aria-label="Previous musical event" data-tooltip="Previous event">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-prev"></use></svg>
+                </button>
+              </div>
+              <button class="play-button" id="player-play-button" type="button" aria-label="Play composition">
+                <svg class="icon icon-play" aria-hidden="true"><use href="#icon-play"></use></svg>
+                <svg class="icon icon-pause" aria-hidden="true"><use href="#icon-pause"></use></svg>
+              </button>
+              <div class="transport-side right">
+                <button class="icon-button transport-minor" id="player-next-button" type="button" aria-label="Next musical event" data-tooltip="Next event">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-next"></use></svg>
+                </button>
+                <button class="icon-button transport-minor" id="player-stop-button" type="button" aria-label="Stop composition" data-tooltip="Stop">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-stop"></use></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="progress-block">
+              <input
+                type="range"
+                class="timeline-range"
+                id="composition-progress"
+                min="0"
+                max="1000"
+                step="1"
+                value="0"
+                aria-label="Seek through the composition"
+                aria-valuetext="Start of composition"
+              />
+              <div class="progress-labels">
+                <span id="elapsed-time">0:00</span>
+                <span class="progress-event-label" id="progress-event-label">Awaiting first move</span>
+                <span id="total-time">0:00</span>
+              </div>
+            </div>
+
+            <div class="tempo-row">
+              <label for="player-tempo">Tempo</label>
+              <input type="range" id="player-tempo" min="36" max="180" step="1" value="84" />
+              <output id="player-tempo-output" for="player-tempo">84 bpm</output>
+            </div>
+
+            <div class="summary-grid">
+              <div class="summary-stat"><span>Moves</span><strong id="summary-moves">0</strong></div>
+              <div class="summary-stat"><span>Captures</span><strong id="summary-captures">0</strong></div>
+              <div class="summary-stat"><span>Checks</span><strong id="summary-checks">0</strong></div>
+              <div class="summary-stat"><span>Duration</span><strong id="summary-duration">0:00</strong></div>
+            </div>
+          </section>
+
+          <section class="panel mapping-panel" aria-labelledby="mapping-panel-heading">
+            <details open id="mapping-details">
+              <summary>
+                <span>
+                  <span class="eyebrow" id="mapping-panel-heading">Transparent mapping</span>
+                  <span class="heading-meta">Why each move sounds this way</span>
+                </span>
+                <svg class="icon chevron" aria-hidden="true"><use href="#icon-chevron"></use></svg>
+              </summary>
+              <div class="mapping-body">
+                <div class="formula">
+                  <span>Destination</span>
+                  <div class="formula-flow">
+                    <code>file a–h</code><span>→</span><code>scale degree</code><span>+</span><code>rank 1–8</code><span>→</span><code>octave</code>
+                  </div>
+                </div>
+                <div class="mapping-mini-grid" id="mapping-mini-grid"></div>
+                <button class="secondary-button full-width" id="mapping-guide-button" type="button">
+                  <svg class="icon" aria-hidden="true"><use href="#icon-spark"></use></svg>
+                  Open the full mapping system
+                </button>
+              </div>
+            </details>
+          </section>
+        </aside>
+      </div>
+
+      <section class="panel timeline-panel" aria-labelledby="timeline-heading">
+        <div class="panel-heading timeline-heading">
+          <div>
+            <span class="eyebrow" id="timeline-heading">Composition timeline</span>
+            <span class="heading-meta" id="timeline-meta">One event for every legal move</span>
+          </div>
+          <div class="timeline-legend" aria-label="Timeline legend">
+            <span><i class="legend-dot white"></i>White</span>
+            <span><i class="legend-dot black"></i>Black</span>
+            <span><i class="legend-dot accent"></i>Special</span>
+          </div>
+        </div>
+        <div class="timeline-scroll" id="timeline-scroll">
+          <div class="timeline-events" id="timeline-events" role="list" aria-label="Musical events in this composition"></div>
+        </div>
+        <div class="timeline-footer">
+          <div class="timeline-summary" id="timeline-summary">
+            <span>Every destination, piece, capture and check is mapped</span>
+          </div>
+          <div class="export-actions" aria-label="Composition actions">
+            <button class="export-button" id="save-button" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-save"></use></svg>
+              <span>Save</span>
+            </button>
+            <button class="export-button" id="share-button" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-share"></use></svg>
+              <span>Share</span>
+            </button>
+            <button class="export-button" id="pgn-button" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-download"></use></svg>
+              <span>PGN</span>
+            </button>
+            <button class="export-button accent" id="wav-button" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-download"></use></svg>
+              <span>Export WAV</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="footer-mark" aria-hidden="true"></span>
+        <span>CHESSOUND</span>
+      </div>
+      <p>Every note is synthesized locally. No samples, accounts or external APIs.</p>
+      <p class="footer-credits">
+        Built with chess.js, cm-chessboard &amp; the Web Audio API · Standard pieces by Cburnett / Rfc1394 (CC BY-SA 3.0)
+      </p>
+    </footer>
+
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="false"></div>
+    <div class="visually-hidden" id="live-region" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Import dialog -->
+    <dialog class="app-dialog" id="import-dialog" aria-labelledby="import-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">Open a score</span>
+            <h2 id="import-dialog-title">Import a game</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close import dialog">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro">
+          Paste a PGN or a CHESSOUND share code. The board and its musical mapping will be rebuilt exactly from the score.
+        </p>
+        <label class="file-drop" for="pgn-file">
+          <svg class="icon" aria-hidden="true"><use href="#icon-upload"></use></svg>
+          <span><strong>Choose a .pgn file</strong><small id="file-drop-label">or drop it here</small></span>
+          <input type="file" id="pgn-file" accept=".pgn,.txt,text/plain" />
+        </label>
+        <label class="field-block" for="pgn-input">
+          <span>PGN or share code</span>
+          <textarea id="pgn-input" rows="9" spellcheck="false" placeholder='[Event "A quiet study"]&#10;1. e4 e5 2. Nf3 Nc6 3. Bb5 ...'></textarea>
+        </label>
+        <div class="form-message error" id="import-error" role="alert" hidden></div>
+        <div class="dialog-footer split">
+          <button class="text-link" id="load-demo-button" type="button">Load a short study</button>
+          <div class="dialog-actions">
+            <button class="secondary-button" type="button" data-close-dialog>Cancel</button>
+            <button class="primary-button" id="import-submit-button" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-play"></use></svg>
+              Load composition
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Settings dialog -->
+    <dialog class="app-dialog settings-dialog" id="settings-dialog" aria-labelledby="settings-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">Studio configuration</span>
+            <h2 id="settings-dialog-title">Settings</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close settings">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro">Changes apply immediately and are saved on this device. Mode presets can be freely fine-tuned.</p>
+
+        <div class="settings-scroll">
+          <fieldset class="settings-group">
+            <legend>Harmony &amp; time</legend>
+            <div class="field-grid two">
+              <label class="field-block" for="setting-mode">
+                <span>Sound mode</span>
+                <select id="setting-mode"></select>
+              </label>
+              <label class="field-block" for="setting-rhythm">
+                <span>Rhythm</span>
+                <select id="setting-rhythm"></select>
+              </label>
+              <label class="field-block" for="setting-root">
+                <span>Root note</span>
+                <select id="setting-root"></select>
+              </label>
+              <label class="field-block" for="setting-scale">
+                <span>Scale</span>
+                <select id="setting-scale"></select>
+              </label>
+              <label class="field-block" for="setting-register">
+                <span>Octave range</span>
+                <select id="setting-register"></select>
+              </label>
+              <div class="field-block">
+                <span class="field-label">Tempo</span>
+                <div class="slider-field">
+                  <input id="setting-tempo" type="range" min="36" max="180" step="1" />
+                  <output id="setting-tempo-output" for="setting-tempo"></output>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="settings-group">
+            <legend>Voices &amp; touch</legend>
+            <div class="field-grid two">
+              <label class="field-block" for="setting-white-voice">
+                <span>White voice</span>
+                <select id="setting-white-voice"></select>
+              </label>
+              <label class="field-block" for="setting-black-voice">
+                <span>Black voice</span>
+                <select id="setting-black-voice"></select>
+              </label>
+              <div class="field-block">
+                <span class="field-label">Note length</span>
+                <div class="slider-field">
+                  <input id="setting-note-length" type="range" min="0.35" max="2.4" step="0.05" />
+                  <output id="setting-note-length-output" for="setting-note-length"></output>
+                </div>
+              </div>
+              <div class="field-block">
+                <span class="field-label">Instrument intensity</span>
+                <div class="slider-field">
+                  <input id="setting-intensity" type="range" min="0" max="1" step="0.01" />
+                  <output id="setting-intensity-output" for="setting-intensity"></output>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="settings-group">
+            <legend>Space &amp; level</legend>
+            <div class="field-grid two">
+              <div class="field-block">
+                <span class="field-label">Master volume</span>
+                <div class="slider-field">
+                  <input id="setting-volume" type="range" min="0" max="1" step="0.01" />
+                  <output id="setting-volume-output" for="setting-volume"></output>
+                </div>
+              </div>
+              <div class="field-block">
+                <span class="field-label">Reverb</span>
+                <div class="slider-field">
+                  <input id="setting-reverb" type="range" min="0" max="1" step="0.01" />
+                  <output id="setting-reverb-output" for="setting-reverb"></output>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="settings-group">
+            <legend>Musical events</legend>
+            <div class="switch-grid">
+              <label class="switch-row"><span><strong>Capture blossom</strong><small>Adds a diatonic third and low body to captures.</small></span><input id="effect-captures" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Check tension</strong><small>A restrained chromatic sting when the king is checked.</small></span><input id="effect-checks" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Promotion flourish</strong><small>A rising figure as a pawn becomes a new piece.</small></span><input id="effect-promotions" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Checkmate cadence</strong><small>A final low-to-high tonic cadence. Silencing it is allowed.</small></span><input id="effect-checkmate" type="checkbox" /><i aria-hidden="true"></i></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="settings-group">
+            <legend>Visuals &amp; comfort</legend>
+            <div class="switch-grid">
+              <label class="switch-row"><span><strong>Waveform overlay</strong><small>Draw the real output waveform over the spectrum.</small></span><input id="visual-waveform" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Piano field</strong><small>Show the keyboard visualization under the analyser.</small></span><input id="visual-piano" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Reduced motion</strong><small>Disable ornamental transitions and board effects.</small></span><input id="setting-reduced-motion" type="checkbox" /><i aria-hidden="true"></i></label>
+              <label class="switch-row"><span><strong>Follow moves</strong><small>Auto-scroll the score to the active move.</small></span><input id="setting-autoscroll" type="checkbox" /><i aria-hidden="true"></i></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="dialog-footer split">
+          <button class="text-link danger-text" id="restore-defaults-button" type="button">Restore defaults</button>
+          <div class="dialog-actions">
+            <button class="primary-button" type="button" data-close-dialog>Done</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Library dialog -->
+    <dialog class="app-dialog" id="library-dialog" aria-labelledby="library-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">On this device</span>
+            <h2 id="library-dialog-title">Composition library</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close library">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro">Saved compositions are compact PGN + settings records. They rebuild identical notes when reopened.</p>
+        <div class="library-list" id="library-list"></div>
+        <div class="dialog-footer split">
+          <span class="fine-print">Up to 20 compositions · local only</span>
+          <button class="secondary-button" type="button" data-close-dialog>Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Save composition dialog -->
+    <dialog class="app-dialog narrow-dialog" id="save-dialog" aria-labelledby="save-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">Keep this study</span>
+            <h2 id="save-dialog-title">Save composition</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close save dialog">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro">A compact record is written to this browser. Reopening it recreates the same notes and settings.</p>
+        <label class="field-block" for="save-title-input">
+          <span>Composition title</span>
+          <input id="save-title-input" type="text" maxlength="120" autocomplete="off" />
+        </label>
+        <div class="save-preview" id="save-preview"></div>
+        <div class="form-message error" id="save-error" role="alert" hidden></div>
+        <div class="dialog-footer">
+          <button class="secondary-button" type="button" data-close-dialog>Cancel</button>
+          <button class="primary-button" id="save-confirm-button" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#icon-save"></use></svg>
+            Save to library
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Share dialog -->
+    <dialog class="app-dialog narrow-dialog" id="share-dialog" aria-labelledby="share-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">Same score, same sound</span>
+            <h2 id="share-dialog-title">Share this composition</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close share dialog">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro">The link carries the complete PGN and every mapping setting. It is decoded locally on the other device.</p>
+        <label class="field-block" for="share-url-input">
+          <span>Composition link</span>
+          <div class="copy-field">
+            <input id="share-url-input" type="text" readonly />
+            <button class="secondary-button" id="copy-share-button" type="button">Copy link</button>
+          </div>
+        </label>
+        <div class="share-note">
+          <svg class="icon" aria-hidden="true"><use href="#icon-note"></use></svg>
+          <span>No server receives this link. Sharing only works because the score is encoded in the URL.</span>
+        </div>
+        <div class="form-message error" id="share-error" role="alert" hidden></div>
+        <div class="dialog-footer">
+          <button class="secondary-button" type="button" data-close-dialog>Close</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Mapping guide -->
+    <dialog class="app-dialog mapping-dialog" id="mapping-guide-dialog" aria-labelledby="mapping-guide-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">No random notes</span>
+            <h2 id="mapping-guide-title">The CHESSOUND mapping system</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close mapping guide">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <div class="mapping-guide-content" id="mapping-guide-content"></div>
+        <div class="dialog-footer">
+          <button class="primary-button" type="button" data-close-dialog>Return to the studio</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Confirm destructive action -->
+    <dialog class="app-dialog narrow-dialog" id="confirm-dialog" aria-labelledby="confirm-dialog-title">
+      <div class="dialog-frame">
+        <header class="dialog-header">
+          <div>
+            <span class="eyebrow">Are you sure?</span>
+            <h2 id="confirm-dialog-title">Start a new game</h2>
+          </div>
+          <button class="icon-button dialog-close" type="button" data-close-dialog aria-label="Close confirmation">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </header>
+        <p class="dialog-intro" id="confirm-dialog-message">This will replace the current score and composition.</p>
+        <div class="dialog-footer">
+          <button class="secondary-button" type="button" data-close-dialog>Keep current game</button>
+          <button class="primary-button danger" id="confirm-action-button" type="button">Start new game</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Honest export progress, wired to real rendering stages -->
+    <div class="export-overlay" id="export-overlay" role="dialog" aria-modal="true" aria-labelledby="export-title" hidden>
+      <div class="export-card">
+        <span class="export-kicker">Offline render</span>
+        <h2 id="export-title">Composing your WAV</h2>
+        <p id="export-message">Preparing synthesizer voices…</p>
+        <div class="export-progress"><i id="export-progress-bar"></i></div>
+        <div class="export-meta">
+          <span id="export-progress-label">0%</span>
+          <span id="export-detail">Local browser processing</span>
+        </div>
+        <button class="secondary-button" id="export-close-button" type="button" hidden>Close</button>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
