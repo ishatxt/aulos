@@ -23,6 +23,17 @@ npm test          # Node test runner: mapping, game, storage and sharing
 
 The first sound requires a click on **Enable sound** (or **Play**) because of browser autoplay policies. Audio is synthesized with the Web Audio API at playback time and again, independently, by the offline WAV exporter.
 
+## Deploy to GitHub Pages
+
+The production build uses `base: "./"` in `vite.config.js`, so every asset URL is relative and the site works inside a repository subpath such as `https://<user>.github.io/aulos/`, not just at a domain root.
+
+One-time repository setup:
+
+1. GitHub → **Settings → Pages → Build and deployment → Source** → choose **GitHub Actions**.
+2. Push to `main`. The `Deploy site to GitHub Pages` workflow runs the unit tests, builds `dist/` and publishes it.
+
+> Pages must serve the **built** site, not the repository source. If the source is set to "Deploy from a branch", GitHub publishes the raw `index.html` with its unstyled `/src/main.js` module reference, so no CSS or JavaScript loads.
+
 ## What you can do
 
 - Play a complete legal game with drag-and-drop or click-to-move, castling, en passant, promotion, checks, checkmate and draws.
