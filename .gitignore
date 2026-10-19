@@ -1,0 +1,9 @@
+# Dependency and build artifacts should never be committed.
+node_modules/
+dist/
+.vite/
+*.local
+.DS_Store
+
+# Local editor files and logs.
+*.log

@@ -1,0 +1,20 @@
+{
+  "name": "chessound",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CHESSOUND — turn chess games into deterministic, playable piano compositions.",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "cm-chessboard": "^8.15.3"
+  },
+  "devDependencies": {
+    "vite": "^7.1.9"
+  }
+}
